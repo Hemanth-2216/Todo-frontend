@@ -3,6 +3,7 @@ import { isAuthenticated } from './services/authService';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import TaskList from './components/todo/TaskList';
+import AdminDashboard from './components/auth/adminDashboard';
 import Header from './components/layout/Header';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -28,6 +29,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <TaskList />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin-dashboard" 
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
                 </ProtectedRoute>
               } 
             />
