@@ -1,66 +1,52 @@
-import api from '../utils/api';
+import api from "../utils/api"; // Ensure api has baseURL set properly
 
-const ADMIN_API_URL = '/api/admin';
-
-// ✅ Get Access Token
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('accessToken');
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-};
-
-// ✅ Fetch All Users (Ensure it returns an array)
-const getAllUsers = async () => {
+// ✅ Get all users (except DELETED)
+export const getAllUsers = async () => {
   try {
-    const response = await api.get(`${ADMIN_API_URL}/users`, getAuthHeaders());
-    
-    console.log("Fetched Users (Raw):", response.data); // Debugging Log
-
-    if (Array.isArray(response.data)) {
-      return response.data; // ✅ Correct format
-    } else if (response.data && response.data.users) {
-      return response.data.users; // ✅ Handle case if users are inside an object
-    } else {
-      console.error("Unexpected API Response:", response.data);
-      return [];
-    }
+    const response = await api.get("/api/admin/users");
+    console.log("API Raw Response:", response);
+    console.log("API Response Data:", response.data);
+    console.log(
+      "Type of response.data:",
+      typeof response.data,
+      Array.isArray(response.data) ? "Array" : "Not Array"
+    );
+    return response.data; // Make sure to return only data (array)
   } catch (error) {
     console.error("Error fetching users:", error);
-    throw error.response?.data?.message || "Failed to fetch users";
+    throw error;
   }
 };
 
-// ✅ Block User
-const blockUser = async (userId) => {
+// ✅ Block user by ID
+export const blockUser = async (id) => {
   try {
-    const response = await api.put(`${ADMIN_API_URL}/block/${userId}`, {}, getAuthHeaders());
+    const response = await api.put(`/api/admin/block/${id}`);
     return response.data;
   } catch (error) {
-    throw error.response?.data?.message || "Failed to block user";
+    console.error("Error blocking user:", error);
+    throw error;
   }
 };
 
-// ✅ Unblock User
-const unblockUser = async (userId) => {
+// ✅ Unblock user by ID
+export const unblockUser = async (id) => {
   try {
-    const response = await api.put(`${ADMIN_API_URL}/unblock/${userId}`, {}, getAuthHeaders());
+    const response = await api.put(`/api/admin/unblock/${id}`);
     return response.data;
   } catch (error) {
-    throw error.response?.data?.message || "Failed to unblock user";
+    console.error("Error unblocking user:", error);
+    throw error;
   }
 };
 
-// ✅ Delete User
-const deleteUser = async (userId) => {
+// ✅ Soft delete user by ID
+export const deleteUser = async (id) => {
   try {
-    const response = await api.delete(`${ADMIN_API_URL}/delete/${userId}`, getAuthHeaders());
+    const response = await api.put(`/api/admin/delete/${id}`);
     return response.data;
   } catch (error) {
-    throw error.response?.data?.message || "Failed to delete user";
+    console.error("Error deleting user:", error);
+    throw error;
   }
 };
-
-export { getAllUsers, blockUser, unblockUser, deleteUser };

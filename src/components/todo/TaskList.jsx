@@ -23,11 +23,18 @@ const TaskList = () => {
 
     try {
       setLoading(true);
-      const tasks = await getAllTasks(); // ✅ using getAllTasks here
-      setTasks(tasks);
+      const tasks = await getAllTasks();
+
+      if (Array.isArray(tasks)) {
+        setTasks(tasks);
+      } else {
+        setTasks([]); // Ensure state is not undefined
+      }
+
       setLoading(false);
     } catch (err) {
       setError("Failed to load tasks.");
+      setTasks([]); // Ensure state is reset on failure
       setLoading(false);
     }
   };
@@ -51,7 +58,7 @@ const TaskList = () => {
       try {
         await deleteTask(taskId);
         toast.success("Task deleted successfully!");
-        fetchTasks();
+        setTasks((prevTasks) => prevTasks.filter((task) => task.taskId !== taskId));
       } catch (err) {
         toast.error("Failed to delete task.");
       }
@@ -70,9 +77,16 @@ const TaskList = () => {
   const handleStatusChange = async (task) => {
     try {
       setUpdatingTaskId(task.taskId);
+      
+      // **Fix: Update only the status of the task instead of refetching**
+      const updatedTasks = tasks.map((t) =>
+        t.taskId === task.taskId ? { ...t, completed: !t.completed } : t
+      );
+
+      setTasks(updatedTasks); // Update UI immediately
+
       await updateTaskStatus(task.taskId, !task.completed);
       toast.success("Task status updated!");
-      fetchTasks();
     } catch (err) {
       toast.error("Failed to update status.");
     } finally {
